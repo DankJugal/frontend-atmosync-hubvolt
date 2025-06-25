@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HubVolt - IoT Device Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .summary-card .card-body {
+            padding: 2rem;
+        }
+        
+        .summary-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .icon-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .icon-success { background: linear-gradient(135deg, #10b981, #059669); }
+        .icon-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .icon-info { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        
+        .summary-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            line-height: 1;
+        }
+        
+        .summary-label {
+            color: #6b7280;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .devices-table {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .table thead th {
+            background: #f8fafc;
+            border: none;
+            color: #374151;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 1.25rem 1rem;
+        }
+        
+        .table tbody td {
+            border-color: #f3f4f6;
+            padding: 1.25rem 1rem;
+            vertical-align: middle;
+        }
+        
+        .status-badge {
+            padding: 0.375rem 0.875rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-on {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-off {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-active {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #10b981;
+        }
+        
+        .toggle-switch.active::before {
+            transform: translateX(30px);
+        }
+        
+        .btn-edit {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            margin-right: 0.5rem;
+        }
+        
+        .btn-edit:hover {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .btn-delete {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-delete:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border-radius: 16px 16px 0 0;
+            border: none;
+        }
+        
+        .modal-header.delete-header {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+        
+        .btn-atmosync {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-atmosync:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+            color: white;
+        }
+        
+        .btn-danger-confirm {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger-confirm:hover {
+            background: linear-gradient(135deg, #b91c1c, #991b1b);
+            transform: translateY(-1px);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-bolt me-2"></i>HubVolt
+            </a>
+            <div class="navbar-nav ms-auto">
+                <button class="btn btn-atmosync me-2" href="atmosync-dashboard.html">
+                    <i class="fas fa-cloud-sun me-2"></i>AtmoSync
+                </button>
+                <a class="nav-link" href="index.html">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <!-- Summary Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-3 col-md-6">
+                <div class="summary-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="summary-icon icon-primary me-3">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div>
+                            <div class="summary-number" id="totalDevices">12</div>
+                            <div class="summary-label">Total Devices</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="summary-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="summary-icon icon-success me-3">
+                            <i class="fas fa-power-off"></i>
+                        </div>
+                        <div>
+                            <div class="summary-number" id="devicesOn">8</div>
+                            <div class="summary-label">Devices ON</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="summary-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="summary-icon icon-warning me-3">
+                            <i class="fas fa-pause-circle"></i>
+                        </div>
+                        <div>
+                            <div class="summary-number" id="devicesOff">4</div>
+                            <div class="summary-label">Devices OFF</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="summary-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="summary-icon icon-info me-3">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div class="summary-number">67%</div>
+                            <div class="summary-label">Utilization</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Devices Table -->
+        <div class="devices-table">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Device Name</th>
+                            <th>MAC Address</th>
+                            <th>IP Address</th>
+                            <th>Port Status</th>
+                            <th>Device Status</th>
+                            <th>Installation Time</th>
+                            <th>Last Connected</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="devicesTableBody">
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Device Modal -->
+    <div class="modal fade" id="editDeviceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>Edit Device
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editDeviceForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Device Name</label>
+                                <input type="text" class="form-control" id="editDeviceName" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">MAC Address</label>
+                                <input type="text" class="form-control" id="editMacAddress">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">IP Address</label>
+                                <input type="text" class="form-control" id="editIpAddress">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Device Status</label>
+                                <select class="form-select" id="editDeviceStatus">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Installation Time</label>
+                                <input type="text" class="form-control" id="editInstallTime" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Connected</label>
+                                <input type="text" class="form-control" id="editLastConnected" readonly>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveDeviceChanges()">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteDeviceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header delete-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Are you sure you want to delete this device?</p>
+                    <div class="alert alert-warning">
+                        <strong id="deleteDeviceName"></strong><br>
+                        <small class="text-muted">This action cannot be undone.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger-confirm" onclick="confirmDeleteDevice()">
+                        <i class="fas fa-trash me-2"></i>Delete Device
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   <!-- Replace entire <script> section in your HTML -->
+<script>
+    let devices = [];
+    let currentDeletingDevice = null;
+
+    const API_BASE = 'http://localhost:3000/hubvolt';
+
+    async function fetchDevices() {
+        try {
+            const res = await fetch(`${API_BASE}/devices`);
+            const data = await res.json();
+            devices = data.map((d, i) => ({
+                id: i + 1,
+                name: d.device_name,
+                mac: d.device_mac_address,
+                ip: d.device_ip_address,
+                portStatus: d.device_port_status,
+                deviceStatus: d.device_status,
+                installTime: d.device_installation_time,
+                lastConnected: d.device_last_connected
+            }));
+            renderDevicesTable();
+        } catch (err) {
+            console.error('Failed to fetch devices:', err);
+        }
+    }
+
+    function renderDevicesTable() {
+        const tbody = document.getElementById('devicesTableBody');
+        tbody.innerHTML = '';
+
+        devices.forEach(device => {
+            const row = `
+                <tr>
+                    <td><strong>${device.name}</strong></td>
+                    <td><code>${device.mac}</code></td>
+                    <td><code>${device.ip}</code></td>
+                    <td>
+                        <button class="toggle-switch ${device.portStatus === 'on' ? 'active' : ''}" 
+                                onclick="togglePortStatus(${device.id})"></button>
+                    </td>
+                    <td>
+                        <span class="status-badge ${device.deviceStatus === 'active' ? 'status-active' : 'status-inactive'}">
+                            ${device.deviceStatus}
+                        </span>
+                    </td>
+                    <td>${device.installTime}</td>
+                    <td>${device.lastConnected}</td>
+                    <td>
+                        <button class="btn btn-delete" onclick="deleteDevice(${device.id})">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+
+        updateSummaryCards();
+    }
+
+    function updateSummaryCards() {
+    const totalDevices = devices.length;
+
+    const devicesOn = devices.filter(d => d.portStatus.toLowerCase() === 'on').length;
+    const devicesOff = devices.filter(d => d.portStatus.toLowerCase() === 'off').length;
+
+    const utilization = totalDevices > 0
+        ? Math.round((devicesOn / totalDevices) * 100)
+        : 0;
+
+    document.getElementById('totalDevices').textContent = totalDevices;
+    document.getElementById('devicesOn').textContent = devicesOn;
+    document.getElementById('devicesOff').textContent = devicesOff;
+
+    const utilizationCard = document.querySelectorAll('.summary-card .summary-number')[3];
+    if (utilizationCard) utilizationCard.textContent = `${utilization}%`;
+}
+
+
+    async function togglePortStatus(deviceId) {
+    const device = devices.find(d => d.id === deviceId);
+    if (!device) return;
+
+    const newStatus = device.portStatus === 'on' ? 'OFF' : 'ON';
+    const controlPayload = `CONTROL ${newStatus}`;
+
+    try {
+        // Step 1: Send control command to the device
+        const response = await fetch(`http://${device.ip}/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: controlPayload
+        });
+
+        const resultText = await response.text();
+
+        // Step 2: If device replies correctly, update DB
+        if (resultText.trim().toUpperCase() === newStatus) {
+            await fetch(`http://localhost:3000/hubvolt/update/${device.name}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ device_port_status: newStatus.toLowerCase() })
+            });
+
+            // Step 3: Update frontend state
+            device.portStatus = newStatus.toLowerCase();
+            renderDevicesTable();
+        }
+
+        // Else → mismatched or no response = do nothing
+    } catch (err) {
+        // Device unreachable or failed → silently ignore
+        console.error(`Toggle failed for ${device.name}`, err.message);
+    }
+}
+
+
+    function deleteDevice(deviceId) {
+        const device = devices.find(d => d.id === deviceId);
+        if (!device) return;
+
+        currentDeletingDevice = device;
+        document.getElementById('deleteDeviceName').textContent = device.name;
+        new bootstrap.Modal(document.getElementById('deleteDeviceModal')).show();
+    }
+
+    async function confirmDeleteDevice() {
+        if (!currentDeletingDevice) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/delete/${currentDeletingDevice.name}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                devices = devices.filter(d => d.id !== currentDeletingDevice.id);
+                renderDevicesTable();
+                bootstrap.Modal.getInstance(document.getElementById('deleteDeviceModal')).hide();
+            } else {
+                alert('Failed to delete device.');
+            }
+        } catch (err) {
+            console.error('Error deleting device:', err);
+            alert('Server error during deletion.');
+        }
+
+        currentDeletingDevice = null;
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchDevices);
+</script>
+
+</body>
+</html>
