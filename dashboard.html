@@ -514,17 +514,21 @@
 
         // Step 2: If device replies correctly, update DB
         if (resultText.trim().toUpperCase() === newStatus) {
-            await fetch(`http://localhost:3000/hubvolt/update/${device.name}`, {
+            const dbRes = await fetch(`http://localhost:3000/hubvolt/update/${device.name}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ device_port_status: newStatus.toLowerCase() })
             });
 
-            // Step 3: Update frontend state
-            device.portStatus = newStatus.toLowerCase();
-            renderDevicesTable();
+            if (dbRes.ok) {
+                // Step 3: Update frontend state ONLY if backend update is successful
+                device.portStatus = newStatus.toLowerCase();
+                renderDevicesTable();
+            } else {
+                // Backend update failed, do not update frontend
+                alert('Failed to update device status in backend.');
+            }
         }
-
         // Else → mismatched or no response = do nothing
     } catch (err) {
         // Device unreachable or failed → silently ignore
