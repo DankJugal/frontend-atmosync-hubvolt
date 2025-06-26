@@ -431,7 +431,8 @@
                 name: d.device_name,
                 mac: d.device_mac_address,
                 ip: d.device_ip_address,
-                portStatus: d.device_port_status,
+                // Normalize portStatus to lowercase for consistency
+                portStatus: (d.device_port_status || 'off').toLowerCase(),
                 deviceStatus: d.device_status,
                 installTime: d.device_installation_time,
                 lastConnected: d.device_last_connected
